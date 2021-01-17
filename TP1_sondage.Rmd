@@ -310,7 +310,9 @@ La probabilité de commettre une erreur de plus de 20% est de `r proba_20`.
 ## h - Niveau de confiance de l'intervalle de confiance d'une largeur de 4 $\hat{\sigma}_{\bar{y}}$
 
 ```{r}
-correct_ICh<-unlist(mapply(function(i,j){if ((i-2*sqrt((1-3/8)*j^2/3))<yu & yu<(i+2*sqrt((1-3/8)*j^2/3))) {1}else{0}},ech.all$ybar,ech.all$s))
+correct_ICh<-unlist(mapply(function(i,j){
+  if ((i-2*sqrt((1-3/8)*j^2/3))<yu & yu<(i+2*sqrt((1-3/8)*j^2/3))) 
+    {1}else{0}},ech.all$ybar,ech.all$s))
 proba_ICh<-sum(correct_ICh)/length(correct_ICh)
 ```
 
@@ -319,7 +321,9 @@ Le niveau de confiance de cet intervalle est `r round(proba_ICh*100)`%.
 ## i - Niveau de confiance de l'intervalle de confiance d'une largeur de 6$\hat{\sigma}_{\bar{y}}$
 
 ```{r}
-correct_ICi<-unlist(mapply(function(i,j){if ((i-3*sqrt((1-3/8)*j^2/3))<yu & yu<(i+3*sqrt((1-3/8)*j^2/3))) {1}else{0}},ech.all$ybar,ech.all$s))
+correct_ICi<-unlist(mapply(function(i,j){
+  if ((i-3*sqrt((1-3/8)*j^2/3))<yu & yu<(i+3*sqrt((1-3/8)*j^2/3))) 
+    {1}else{0}},ech.all$ybar,ech.all$s))
 proba_ICi<-sum(correct_ICi)/length(correct_ICi)
 ```
 
@@ -329,7 +333,9 @@ Le niveau de confiance de cet intervalle est `r round(proba_ICi*100)`%.
 
 ```{r}
 sigma_y_bar<-sqrt(var(ech.all$ybar))*(length(ech.all$ybar)-1)/length(ech.all$ybar)
-correct_ICj<-unlist(lapply(ech.all$ybar,function(i){if ((i-2*sigma_y_bar)<yu & yu<(i+2*sigma_y_bar)) {1}else{0}}))
+correct_ICj<-unlist(lapply(ech.all$ybar,function(i){
+  if ((i-2*sigma_y_bar)<yu & yu<(i+2*sigma_y_bar)) 
+    {1}else{0}}))
 proba_ICj<-sum(correct_ICj)/length(correct_ICj)
 ```
 
@@ -342,9 +348,11 @@ Le niveau de confiance de cet intervalle est `r round(proba_ICj*100)`%.
 ```{r}
 # Descriptif de population
 # Valeurs
-y <- c(36,36.5,37,37.5,38,38.5,39,39.5,40,40.5,41,41.5,42,42.5,43,43.5,44,44.5,45,45.5,46,46.5)
+y <- c(36,36.5,37,37.5,38,38.5,39,39.5,40,40.5,41,
+       41.5,42,42.5,43,43.5,44,44.5,45,45.5,46,46.5)
 # Probabilites
-e<-c(0.02,0.03,0.04,0.06,0.10,0.12,0.13,0.10,0.07,0.05,0.05,0.04,0.04,0.03,0.03,0.02,0.02,0.01,0.01,0.01,0.01,0.01)
+e<-c(0.02,0.03,0.04,0.06,0.10,0.12,0.13,0.10,0.07,0.05,0.05,
+     0.04,0.04,0.03,0.03,0.02,0.02,0.01,0.01,0.01,0.01,0.01)
 # Echantillonnage
 n<-5
 set.seed(2010)
@@ -355,6 +363,7 @@ echt<-matrix(unlist(lapply(1:1000,function(i){sample(y,n,replace=TRUE,prob=e)}))
 y_u<-sum(unlist(mapply(function(i,j){i*j},y,e)))
 y_u
 y_bar<-apply(echt, 1, mean)
+
 mean(y_bar)
 ```
 
@@ -363,42 +372,68 @@ Le biais entre $\mu_{\bar{y}}$ et $\bar{y}_\mathcal{U}$ est faible (`r mean(y_ba
 ## b - Evaluation de l'estimation de la variance
 
 ```{r}
-
-sigma<-sum(unlist(mapply(function(i,j){(i-y_u)^2*j},y,e)))
-var_y_th<-sigma^2/length(y)
+sigma2<-sum(unlist(mapply(function(i,j){(i-y_u)^2*j},y,e)))
+var_y_th<-sigma2/length(y)
 var_y_emp<-var(y_bar)*(length(y_bar)-1)/length(y_bar)
 ```
 
 La variance est de `r var_y_emp`. Elle devrait théoriquement être $\frac{\sigma^2}{n}=$ `r var_y_th`.
 
-## c -Distribution de $\bar{y}$
+## c - Distribution de $\bar{y}$
 
 ```{r}
-#5.C
 hist(y_bar,breaks=35,freq=F)
-curve(dnorm(x,y_u,sqrt(var_y_emp)),add=TRUE)
+curve(dnorm(x,mean(y_bar),sqrt(var_y_emp)),add=TRUE)
 ```
 
 ## d - Probabilité que $\bar{y}$ soit éloigné de plus de 1.96 écart-type de la moyenne
 
 ```{r}
-out<-lapply(y_bar,function(i){if (mean(y_bar)-1.96*var_y_emp<i & i<mean(y_bar)+1.96*var_y_emp) {0}else{1}})
+out<-lapply(y_bar,function(i){
+  if (mean(y_bar)-1.96*var_y_emp<i & i<mean(y_bar)+1.96*var_y_emp) 
+    {0}else{1}})
 ```
 
-La probabilité que $\bar{y}$ soit éloigné de plus de 1.96 écart-type de la moyenne est de `r round(sum(unlist(out))/length(out)*100)`%.
+La probabilité que $\bar{y}$ soit éloigné de plus de 1.96 écart-type de la moyenne est de `r round(sum(unlist(out),2)/length(out)*100)`%.
 
 ## e - Intervale de confiance à 95%
 
 ```{r}
+n<-dim(echt)[2]
+# variance empirique corrigée
+s_prime<-apply(echt, 1, sd)
+# Variance empirique
+s<-apply(echt, 1, function(i){sqrt(var(i)*(n-1)/n)})
+
+inside<-mapply(function(i,j){
+  if (i-1.96*j/sqrt(dim(echt)[2])<y_u & y_u< i+1.96*j/sqrt(dim(echt)[2]))
+    {1}else{0}},y_bar,s )
 ```
+
+La probabilité que l'intervalle $\bar{y}\pm1.96s/\sqrt{n}$ inclu $\bar{y}_\mathcal{U}$ est de `r round(sum(unlist(inside),1)/length(inside)*100)`%.
 
 ## f - Comparaison de s$^2$ et S$^2$ 
 
-```{r}
+Les résultats de la question e semblent indiquer que $s^{2}$ est un estimateur biaisé de $S^{2}$.
+
+En effet, on obtient un biais de `r abs(mean(s^2)-sigma2)`.
+```{r, include=FALSE, echo=FALSE}
+mean(s)
+sqrt(sigma2)
 ```
 
-## g - Autre intervalld de confiance à 95%
+Remarque : ce biais n'est plus que de `r mean(s_prime^2)-sigma2` si on prend la variance empirique corrigée.
+
+## g - Autre intervalle de confiance à 95%
+
 
 ```{r}
+alpha<-0.05
+
+inside2<-lapply(s,
+                function(j){
+                  if ((n-1)*j^2/qchisq(1-alpha/2,n-1)<sigma2 & sigma2< (n-1)*j^2/qchisq(1-(1-alpha/2),n-1))
+                    {1}else{0}})
 ```
 
+Le niveau de l'intervalle $$\frac{(n-1)s^{2}}{\chi^{2}_{\alpha/2;n-1}} < S^{2} < \frac{(n-1)s^{2}}{\chi^{2}_{1-\alpha/2;n-1}}$$ est de `r round(sum(unlist(inside2),1)/length(inside2)*100)`%.
