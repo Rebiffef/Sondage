@@ -45,11 +45,19 @@ moy1 <- mean(Warner1)
 sd1 <- sqrt(var(Warner1))
 ```
 
-On obtient une moyenne de `r moy1` et un écart type de `r sd1`.
+On obtient une moyenne de `r moy1` et un écart-type de `r sd1`.
 
 ## b - Valeurs théoriques
 
-Théoriquement, on devrait avoir une moyenne à `r P` (qui correspond à $\pi_{A}$) et un écart-type à 0. 
+```{r}
+pop<-c(rep(1,P*100),rep(0,(1-P)*100))
+moy_pop <- mean(pop)
+S <- sd(pop)
+sd_th<-sqrt(1-n/N)*S/sqrt(n)
+```
+
+Les valeurs théoriques sont pour la moyenne à `r moy_pop` $$\bar{y}_{\mathcal{U}}=E[\bar{y}_{\omega}]$$ (qui correspond à $\pi_{A}$) et pour l'écart-type à `r sd_th`
+$$ s_{\bar{y}_{\omega}}=\sqrt{(1-\frac{n}{N})}\frac{S}{\sqrt{n}}$$ (avec $S=\sqrt{\frac{1}{N-1}\sum_{N}(y_{i}-\bar{y}_{\mathcal{U}})^{2}}$=`r S`).
 
 ## c - Méthode directe
 
@@ -62,17 +70,18 @@ varbino1 <- var(simubino)
 varWarner1 <- var(Warner1)
 ```
 
-La variance de la méthode directe est de `r varbino1` et celle que la méthode de Warner est `r varWarner1`. Il y a une différence entre les 2 variances. En effet, même si c'est minime, la méthode directe est plus précise que la méthode de Warner à condition que la population réponde honnêtement. 
+La variance de la méthode directe est de `r varbino1` et celle de la méthode de Warner est `r varWarner1`. Il y a une différence entre les 2 variances. En effet, même si c'est minime, la méthode directe est plus précise que la méthode de Warner à condition que la population réponde honnêtement. 
 
 ## d - Histogramme
 
 ```{r}
-hist(Warner1,main="Simulations avec la méthode de Warner")
+hist(Warner1,main="Simulations avec la méthode de Warner",freq =F)
 ```
+
 
 ## e - Commentaires
 
-On remarque que la méthode de Warner se rapproche assez bien de ce qu'on espère obtenir c'est à dire une estimation $\hat{\pi}_{AW}$ proche de $\pi_{A}$. Cependant, la méthode de Warner est moins efficace que la méthode directe à la condition que les gens honnêtement au sondage. 
+On remarque que la méthode de Warner se rapproche assez bien de ce qu'on espère obtenir c'est à dire une estimation $\hat{\pi}_{AW}$ proche de $\pi_{A}$. Cependant, la méthode de Warner est moins efficace que la méthode directe à la condition que les gens répondent honnêtement au sondage. 
 
 # Exercice 2 - Méthode de la question complémentaire innocente
 
@@ -118,7 +127,7 @@ On obtient une moyenne de `r moy2` et un écart type de `r sd2`.
 
 ## b - Valeurs théoriques
 
-On a toujours 0.10 et 0 en valeurs théoriques.
+On a toujours `r moy_pop` et `r sd_th` en valeurs théoriques.
 
 ## c - Comparaison avec la méthode directe
 
@@ -293,10 +302,10 @@ erreur_25<-unlist(lapply(ech.all$ybar,function(i){if (abs(i-yu)>yu/4) {1}else{0}
 proba_25<-sum(erreur_25)/length(erreur_25)
 ```
 
-La probabilité de commettre une erreur de plus de : 
-- 2 unités est de `r proba_2` 
-- 5 unités est de `r proba_5` 
-- 25% est de `r proba_25`.
+La probabilité de commettre une erreur de plus de :     
+- 2 unités est de `r proba_2`     
+- 5 unités est de `r proba_5`     
+- 25% est de `r proba_25`.    
 
 ## g - Evaluation de l'estimation de l'écart-type
 
@@ -307,7 +316,7 @@ proba_20<-sum(erreur_20)/length(erreur_20)
 
 La probabilité de commettre une erreur de plus de 20% est de `r proba_20`.
 
-## h - Niveau de confiance de l'intervalle de confiance d'une largeur de 4 $\hat{\sigma}_{\bar{y}}$
+## h - Niveau de confiance de l'intervalle de confiance d'une largeur de 4$\hat{\sigma}_{\bar{y}}$
 
 ```{r}
 correct_ICh<-unlist(mapply(function(i,j){
@@ -329,7 +338,7 @@ proba_ICi<-sum(correct_ICi)/length(correct_ICi)
 
 Le niveau de confiance de cet intervalle est `r round(proba_ICi*100)`%.
 
-## j - Niveau de confiance de l'intervalle de confiance d'une largeur de 4 $\sigma_{\bar{y}}$
+## j - Niveau de confiance de l'intervalle de confiance d'une largeur de 4$\sigma_{\bar{y}}$
 
 ```{r}
 sigma_y_bar<-sqrt(var(ech.all$ybar))*(length(ech.all$ybar)-1)/length(ech.all$ybar)
@@ -374,12 +383,14 @@ Le biais entre $\mu_{\bar{y}}$ et $\bar{y}_\mathcal{U}$ est faible (`r mean(y_ba
 ```{r}
 sigma2<-sum(unlist(mapply(function(i,j){(i-y_u)^2*j},y,e)))
 var_y_th<-sigma2/length(y)
-var_y_emp<-var(y_bar)*(length(y_bar)-1)/length(y_bar)
+var_y_emp<-var(y_bar)
 ```
 
-La variance est de `r var_y_emp`. Elle devrait théoriquement être $\frac{\sigma^2}{n}=$ `r var_y_th`.
+La variance est de `r var_y_emp`. Elle devrait théoriquement être $(1-\frac{n}{N})\frac{\sigma^2}{n}=$ `r var_y_th` car ici N est supposé infini.
 
 ## c - Distribution de $\bar{y}$
+
+On voit sur le graphique ci dessous que la répartition est proche de celle d'une distribution normale.
 
 ```{r}
 hist(y_bar,breaks=35,freq=F)
@@ -400,10 +411,8 @@ La probabilité que $\bar{y}$ soit éloigné de plus de 1.96 écart-type de la m
 
 ```{r}
 n<-dim(echt)[2]
-# variance empirique corrigée
-s_prime<-apply(echt, 1, sd)
-# Variance empirique
-s<-apply(echt, 1, function(i){sqrt(var(i)*(n-1)/n)})
+# variance empirique
+s<-apply(echt, 1, sd)
 
 inside<-mapply(function(i,j){
   if (i-1.96*j/sqrt(dim(echt)[2])<y_u & y_u< i+1.96*j/sqrt(dim(echt)[2]))
@@ -422,7 +431,6 @@ mean(s)
 sqrt(sigma2)
 ```
 
-Remarque : ce biais n'est plus que de `r mean(s_prime^2)-sigma2` si on prend la variance empirique corrigée.
 
 ## g - Autre intervalle de confiance à 95%
 
